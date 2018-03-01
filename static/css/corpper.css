@@ -1,0 +1,35 @@
+._lt_clip_border{
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+._lt_clip_border.vertical{
+    height: 100%;
+    cursor: e-resize;
+}
+._lt_clip_border.vertical:before{
+    content: '';
+    background: #465C67;
+    width: 2px;
+    height: 100%;
+    position: absolute;
+    left: 50%;
+    margin-left: -1px;
+}
+._lt_clip_border.horizonal{
+    width: 100%;
+    cursor: n-resize;
+}
+._lt_clip_border.horizonal:before{
+    content: '';
+    background: #465C67;
+    height: 2px;
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    margin-top: -1px;
+}
+._lt_clip_preview_area{
+    background: rgba(255,255,255,0.4);
+    position: absolute;
+}

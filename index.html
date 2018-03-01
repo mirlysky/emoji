@@ -1,0 +1,821 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF图在线编辑器</title>
+    <link rel="stylesheet" type="text/css" href="static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="static/css/glyphicons.css">
+    <link rel="stylesheet" type="text/css" href="static/css/editor.css">
+    <link rel="stylesheet" type="text/css" href="static/css/themes.css">
+    <link rel="stylesheet" type="text/css" href="static/css/corpper.css">
+    <script src="https://s.ssl.qhres.com/lib/jquery/183.js" ></script>
+    <script>
+    function checkLeave(){
+        event.returnValue="放弃当前的GIF编辑内容？";
+    }
+    </script>
+</head>
+<body onbeforeunload="checkLeave()">
+    <img src="static/img/logo.png" style="position: absolute;top: -440px;">
+    <div id="warper" class="flex-col">
+        <!-- 顶部菜单栏 sta -->
+        <header>
+            <a href="##new" id="btn_new" class="btn-menu">
+                <i class="glyphicons glyphicons-file disable"></i> 新建
+            </a>
+
+            <a href="##open" id="btn_open" class="btn-menu open" title="打开存档...">
+                <i class="glyphicons glyphicons-folder-open"></i> 打开...
+            </a>
+
+            <a href="##save" id="btn_save" class="btn-menu save" title="保存数据到本地存储">
+                <i class="glyphicons glyphicons-floppy-disk"></i> 存档...
+            </a>
+
+            <a href="#upload_modal" data-toggle="modal" class="btn-menu upload">
+                <i class="glyphicons glyphicons-cloud-upload"></i> 从本地导入帧素材
+            </a>
+
+            <a href="#jia_pics_modal" data-toggle="modal" class="btn-menu import" style="display:none">
+                <i class="glyphicons glyphicons-file-import"></i> 导入水滴直播截图
+            </a>
+
+            <a href="Mailto:lantian-iri@360.cn?CC=huzunjie@360.cn&SubJect=GIF编辑器留言反馈" class="btn-menu help">
+                <i class="glyphicons glyphicons-comments"></i> 留言反馈
+            </a>
+            
+			<a id="video_edit_modal_btn" href="#video_edit_modal" data-toggle="modal" class="btn-menu help hidden">
+                <i class="glyphicons glyphicons-facetime-video"></i> 查看视频
+            </a>
+            
+            <!-- 
+
+            <a href="##new" class="btn-menu settings">
+                <i class="glyphicons glyphicons-cogwheel"></i> 设置
+            </a>
+            <a href="##new" class="btn-menu undo disable">
+                <i class="glyphicons glyphicons-undo"></i> 撤销
+            </a>
+            <a href="##new" class="btn-menu redo disable">
+                <i class="glyphicons glyphicons-redo"></i> 恢复
+            </a>
+            -->
+
+            <a href="##export_modal"  id="btn_export_modal" data-toggle="modal" class="btn-menu fl-r export">
+                <i class="glyphicons glyphicons-file-export"></i> 导出GIF图
+            </a>
+
+            <a href="##share_modal" data-toggle="modal" id="btn_data_share" class="btn-menu fl-r share">
+                <i class="glyphicons glyphicons-share-alt"></i> 导入导出存档
+            </a>
+        </header>
+        <!-- 顶部菜单栏 sta -->
+
+        <!-- 编辑区域 sta -->
+        <section class="bd flex-row -hide-aside">
+            <aside class="ele-list flex-col">
+                <!-- 公共元件（所有帧共享元件） -->
+                <div class="flex-col pane public-eles">
+                    <div class="tabs">
+                        <span class="tab on">公共元件</span>
+                        
+                        <a class="fl-r" href="###" id="btn_edit_public_el">
+                            <span class="btn-2"><i class="glyphicons glyphicon glyphicons-align-left"></i> 公共元件时间轴</span>
+                        </a>
+                        <a class="fl-r" href="###" id="btn_add_public_el">
+                            <span class="btn-2"><i class="glyphicons glyphicons-plus"></i> 添加</span>
+                        </a>
+                    </div>
+
+                    <div class="scroll-wrap">
+                        <div class="msg">公共元件配置在所有帧中有效</div>
+                        <div class="tab-target" id="public_eles"></div>
+                    </div>
+
+                </div>
+                <!-- 私有元件（具体帧内的） -->
+                <div class="flex-col pane private-eles">
+                    <div class="tabs">
+                        <span class="tab on">私有元件</span>
+
+                        <a class="fl-r" href="###" id="btn_add_el">
+                            <span class="btn-2"><i class="glyphicons glyphicons-plus"></i> 添加</span>
+                        </a>
+                    </div>
+
+                    <script id="aside_ele_tmpl" type="text/tmpl">
+                        {for(var el,i=0; el=opts[i];i++)}
+                            {js var elType=el.type, isBg = elType=='background';}
+                            <div class="el-item -on el-{elType}" data-el-i="{i}">
+
+                                <span class="fl-r">
+
+                                    <a href="###" class="btn-1 btn-lock-fel {el.lock?'checked':''}"><i class="glyphicons glyphicons-unlock" title="未锁定"></i><i class="glyphicons glyphicons-lock" title="已锁定"></i></a>
+                                    <a href="###" class="btn-1 btn-hide-fel {el.hide?'checked':''} {el.lock || isBg?'disable':''}"><i class="glyphicons glyphicons-eye-open" title="可见"></i><i class="glyphicons glyphicons-eye-close" title="隐藏"></i></a>
+                                    <a href="###" class="btn-1 btn-delete-fel {el.lock || isBg?'disable':''}" title="删除"><i class="glyphicons glyphicons-bin"></i></a>
+                                    {isBg?'<a href="###" class="btn-1 btn-edit on" title="编辑"><i class="glyphicons glyphicons-edit"></i></a>':''}
+                                </span>
+
+                                <i class="icon glyphicons glyphicons-{elType=='text'?'font':'picture'}"></i>
+                                <span class="name" title="{=elType=='text'?el.txt:el.src}">{isBg?'[背景] ':''}{elType=='text'? el.txt:jQuery.getFileNameByUri(el.src)}</span>
+                            </div>
+                        {/for}
+                    </script>
+
+                    <div class="scroll-wrap">
+                        <div class="msg">私有元件配置只对当前帧有效</div>
+                        <div class="tab-target" id="private_eles"></div>
+                    </div>
+
+                </div>
+
+            </aside>
+            <div class="flex-col main">
+                <div class="top-bar">
+
+                    <div class="fl-l">
+                        <a href="###" class="btn-1 btn-aside on" title="显示侧边栏-元件管理功能"><i class="icon-3row"></i></a>
+                        <a href="###" class="btn-1 btn-grid on" title="显示网格"><i class="glyphicons glyphicons-table"></i></a>
+                        <a href="###" class="btn-1 btn-ruler on" title="显示标尺"><i class="glyphicons glyphicons-ruler"></i></a>
+                        <a href="###" class="btn-1 btn-clip" title="裁剪"><i class="glyphicons glyphicons-scissors"></i></a>
+                    </div>
+                    <div class="fl-r">
+                        <a href="###" class="btn-1 btn-zoom zoom-in" title="放大"><i class="glyphicons glyphicons-zoom-in"></i></a>
+                        <a href="###" class="btn-1 btn-zoom zoom-out" title="缩小"><i class="glyphicons glyphicons-zoom-out"></i></a>
+                        <a href="###" class="btn-1 btn-zoom zoom-reset" title="取消缩放"><i class="glyphicons glyphicons-search"></i></a>
+                        <!-- 
+                        <a href="###" class="btn-1 btn-size on"><i class="glyphicons glyphicons-display"></i></a>
+                        <a href="###" class="btn-1 btn-size"><i class="glyphicons glyphicons-iphone"></i></a>
+                         -->
+                    </div>
+
+                    <div class="title-wrap">
+                        <span class="ipt-1 ipt-gif-title _input" data-name="title" contenteditable="true">未命名</span>
+                        <span class="ipt-size-wrap">
+                            (
+                            <input class="ipt-1 ipt-size _input" name="width" type="number" min="1" max="2000" value="500">
+                            <label class="lock-w-h" title="锁定宽高比"><input type="checkbox" class="_input" name="lock_w_h" value="1"><i class="glyphicons glyphicons-lock"></i><i class="glyphicons glyphicons-unlock"></i></label>×
+                            <input class="ipt-1 ipt-size _input" name="height" type="number" min="1" max="2000" value="300">px
+                            @
+                            <input class="ipt-1 _input" name="zoom" type="number" min="1" max="500" value="100">%
+                            )
+                        </span>
+                    </div>
+
+                </div>
+
+                <script id="cvs_fel_background_tmpl" type="text/tmpl">
+                <img class="el-rn" data-el-i="{$_rid}" src="{$src}" style="
+                    {$lock?'pointer-events:none;':''}
+                    {$hide?'display:none;':''}
+                    {$left?'left:'+$.completionUnitPx($left)+';':''}
+                    {$top?'top:'+$.completionUnitPx($top)+';':''}
+                    {$width?'width:'+$.completionUnitPx($width)+';':''}
+                    {$height?'height:'+$.completionUnitPx($height)+';':''}
+                ">
+                </script>
+                <script id="cvs_fel_text_tmpl" type="text/tmpl">
+                <span class="el-rn" data-el-i="{$_rid}" style="
+                    {$lock?'pointer-events:none;':''}
+                    {$hide?'display:none;':''}
+                    {$left?'left:'+$.completionUnitPx($left)+';':''}
+                    {$top?'top:'+$.completionUnitPx($top)+';':''}
+                    {$fontWeight?'font-weight:'+$fontWeight+';':''}
+                    {$fontFamily?'font-family:'+$fontFamily+';':''}
+                    {$fontSize?'font-size:'+$.completionUnitPx($fontSize)+';':''}
+                    {$fontColor?'color:'+$fontColor+';':''}
+                    {if(!empty($shadowBlur))}
+                        text-shadow:{$shadowOffsetX}px {$shadowOffsetY}px {$shadowBlur}px {$shadowColor};
+                    {/if}
+                ">{$txt}</span>
+                </script>
+                <script id="cvs_frame_tmpl" type="text/tmpl">
+                    {for(var el,i=0;(el=opts.els[i]) && !el.hide;i++)}
+                        {inc('#cvs_fel_'+el.type+'_tmpl',el)}
+                    {/for}
+                </script>
+                <!-- frameData = {   
+
+                    //当前帧内的元素们
+                    els:[
+
+                        //背景图(不可删除)
+                        {
+                            type:"background", //background不允许删除
+                            _ipbc:1, //是否继承全局配置
+                            src:"a/b/c.jpg",
+                            lock:true,
+                            hide:false
+                        }
+                    ]
+                } -->
+
+                <div class="cvs-warp">
+                    <div class="cvs-margin">
+                        <div class="cvs-main">
+                            <div class="grid-bg"></div>
+                            <div id="cvs_frame_box" class="cvs"></div>
+                            <div id="cvs_clip_box" class="cvs_clip_box"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <aside class="flex-row el-attrs">
+                <div class="flex-col pane">
+                    <div class="tabs">
+                        <span class="tab on">元件详情设置</span>
+                    </div>
+
+                    <script id="el_attrs_tmpl" type="text/tmpl">
+                        {js var currEl = $currEl, isLock = currEl.lock;}
+                        <div class="option-group">
+                            <h3>坐标</h3>
+                            <div class="content">
+                                <label class="option">
+                                    <span>顶边距离(px)</span>
+                                    <input type="number" name="top" class="ipt-1 _inputs_el" value="{currEl.top||''}" {isLock?'readonly':''}>
+                                </label>
+                                <label class="option">
+                                    <span>左边距离(px)</span>
+                                    <input type="number" name="left" class="ipt-1 _inputs_el" value="{currEl.left||''}" {isLock?'readonly':''}>
+                                </label>
+                            </div>
+                        </div>
+
+                        {if(currEl.type=='text')}
+                        <div class="option-group">
+                            <h3>文字效果</h3>
+                            <div class="content">
+                                <label class="option">
+                                    <span>是否启用弹幕</span>
+                                    {if(!!(currEl.barrage=='on'))}
+                                        <input type="checkbox" name="barrage" class="ipt-1 _inputs_el ipt-checkbox" checked="true">
+                                    {else}
+                                        <input type="checkbox" name="barrage" class="ipt-1 _inputs_el ipt-checkbox">
+                                    {/if}
+                                </label>
+                            </div>
+                            <div class="content">
+                                <label class="option">
+                                    <span>打字机效果</span>
+                                    {if(!!(currEl.barrage=='on'))}
+                                        <input type="checkbox" name="typewriter" class="ipt-1 _inputs_el ipt-checkbox" checked="true">
+                                    {else}
+                                        <input type="checkbox" name="typewriter" class="ipt-1 _inputs_el ipt-checkbox">
+                                    {/if}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="option-group">
+                            <h3>显示区间</h3>
+                            <div class="content">
+                                <label class="option">
+                                    <span>第几帧开始出现</span>
+                                    <input type="number" name="start" class="ipt-1 _inputs_el" value="{currEl.start||'0'}" min=0 max={gifEditor.data.getFramesCount()}>
+                                </label>
+                                <label>
+                                    <span>第几帧开始隐藏</span>
+                                    <input type="number" name="end" class="ipt-1 _inputs_el" value="{currEl.end||gifEditor.data.getFramesCount()}" min=0 max={gifEditor.data.getFramesCount()}>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="option-group">
+                            <h3>文本内容</h3>
+                            <div class="content">
+                                <textarea type="text" name="txt" class="ipt-1 _inputs_el" {isLock?'readonly':''}>{currEl.txt||''}</textarea>
+                            </div>
+                            <div class="content" style=" color: #787B7B; -webkit-user-select: auto; background-color: #3A3F42; padding: 5px;">
+                                [说明] 文本内容中支持以下变量：<br>
+                                &nbsp; 帧序号: ##7bframeIndex##7d  帧总数：##7bframeCount##7d
+                                <!-- <br>
+                                &nbsp; 文件名：##7bfileName##7d  设备SN号：##7bsn##7d<br>
+                                &nbsp; 截图时间戳：##7btimeStamp##7d<br>
+                                &nbsp; 自定义年月日时分秒输出截图时间：<br>
+                                &nbsp; &nbsp; &nbsp; ##7bdate('YYYY-MM-DD hh:mm:ss')##7d 
+                                -->
+                            </div>
+                        </div>
+
+                        <div class="option-group">
+                            <h3>文本样式</h3>
+                            <div class="content">
+                                <label class="option">
+                                    <span>文字大小(px)</span>
+                                    <input type="number" name="fontSize" class="ipt-1 _inputs_el" value="{currEl.fontSize||'12'}" {isLock?'readonly':''}>
+                                </label>
+                                <label class="option">
+                                    <span>文字颜色</span>
+                                    <input type="color" name="fontColor" class="ipt-1 _inputs_el" value="{currEl.fontColor||'#000000'}" {isLock?'readonly':''}>
+                                </label>
+                                <label>
+                                    <span>加粗</span>
+                                    <select name="fontWeight" class="ipt-1 _inputs_el" {isLock?'readonly':''}>
+                                        <option {currEl.fontWeight=='bold'?'selected':''} value="bold" style="font-weight:bold">加粗</option>
+                                        <option {currEl.fontWeight!='bold'?'selected':''} value="">不加粗</option>
+                                    </select>
+                                </label>
+                                <label>
+                                    <span>字体</span>
+                                    <select name="fontFamily" class="ipt-1 _inputs_el" {isLock?'readonly':''}>
+                                        <option value="Arial" {currEl.fontFamily=='Arial'?'selected':''} style="font-family:Arial">Arial</option>
+                                        <option value="Impact" {currEl.fontFamily=='Impact'?'selected':''} style="font-family:Impact">Impact</option>
+                                        <option value="Verdana" {currEl.fontFamily=='Verdana'?'selected':''} style="font-family:Verdana">Verdana</option>
+                                        <option value="宋体" {currEl.fontFamily=='宋体'?'selected':''} style="font-family:宋体">宋体</option>
+                                        <option value="楷体" {currEl.fontFamily=='楷体'?'selected':''} style="font-family:楷体">楷体</option>
+                                        <option value="隶书" {currEl.fontFamily=='隶书'?'selected':''} style="font-family:隶书">隶书</option>
+                                        <option value="幼圆" {currEl.fontFamily=='幼圆'?'selected':''} style="font-family:幼圆">幼圆</option>
+                                        <option value="微软雅黑" {currEl.fontFamily=='微软雅黑'?'selected':''} style="font-family:微软雅黑">微软雅黑</option>
+                                        <option value="华文行楷" {currEl.fontFamily=='华文行楷'?'selected':''} style="font-family:华文行楷">华文行楷</option>
+                                        <option value="华文新魏" {currEl.fontFamily=='华文新魏'?'selected':''} style="font-family:华文新魏">华文新魏</option>
+                                        <option value="华文隶书" {currEl.fontFamily=='华文隶书'?'selected':''} style="font-family:华文隶书">华文隶书</option>
+                                        <option value="Comic Sans MS" {currEl.fontFamily=='Comic Sans MS'?'selected':''} style="font-family:'Comic Sans MS'">Comic Sans MS</option>
+                                        <option value="Trebuchet MS" {currEl.fontFamily=='Trebuchet MS'?'selected':''} style="font-family:'Trebuchet MS'">Trebuchet MS</option>
+                                        <option value="Tahoma" {currEl.fontFamily=='Tahoma'?'selected':''} style="font-family:Tahoma">Tahoma</option>
+                                        <option value="simhei" {currEl.fontFamily=='simhei'?'selected':''} style="font-family:simhei">simhei</option>
+                                        <option value="MS UI Gothic" {currEl.fontFamily=='MS UI Gothic'?'selected':''} style="font-family:'MS UI Gothic'">MS UI Gothic</option>
+                                        <option value="Webdings" {currEl.fontFamily=='Webdings'?'selected':''}>Webdings</option>
+                                        <option value="Wingdings" {currEl.fontFamily=='Wingdings'?'selected':''}>Wingdings</option>
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="option-group">
+                            <h3>阴影</h3>
+                            <div class="content">
+                                <label class="option">
+                                    <span>阴影大小</span>
+                                    <input type="number" name="shadowBlur" class="ipt-1 _inputs_el" value="{currEl.shadowBlur||''}" {isLock?'readonly':''}>
+                                </label>
+                                <label class="option">
+                                    <span>阴影颜色</span>
+                                    <input type="color" name="shadowColor" class="ipt-1 _inputs_el" value="{currEl.shadowColor||''}" {isLock?'readonly':''}>
+                                </label>
+                                <label class="option">
+                                    <span>横向偏移</span>
+                                    <input type="number" name="shadowOffsetX" class="ipt-1 _inputs_el" value="{currEl.shadowOffsetX||''}" {isLock?'readonly':''}>
+                                </label>
+                                <label class="option">
+                                    <span>纵向偏移</span>
+                                    <input type="number" name="shadowOffsetY" class="ipt-1 _inputs_el" value="{currEl.shadowOffsetY||''}" {isLock?'readonly':''}>
+                                </label>
+                            </div>
+                        </div>
+                        {else}
+
+                        <div class="option-group">
+                            <h3>图片地址</h3>
+                            <div class="content">
+                                <textarea type="text" name="src" class="ipt-1 _inputs_el" {isLock?'readonly':''}>{currEl.src||''}</textarea>
+                            </div>
+                        </div>
+                        <div class="option-group">
+                            <h3>尺寸</h3>
+                            <div class="content">
+                                <label class="option">
+                                    <span>宽度(px或%)</span>
+                                    <input type="text" name="width" class="ipt-1 _inputs_el" value="{currEl.width||''}" {isLock?'readonly':''}>
+                                </label>
+                                <label class="option">
+                                    <span>高度(px或%)</span>
+                                    <input type="text" name="height" class="ipt-1 _inputs_el" value="{currEl.height||''}" {isLock?'readonly':''}>
+                                </label>
+                            </div>
+                        </div>
+                        {/if}
+
+                        <div class="option-group">
+                            <h3>状态</h3>
+                            <div class="content">
+                                <label class="for-checkbox">
+                                    <span>是否锁定(只读)</span>
+                                    <input type="checkbox" class="ipt-1 _inputs_el .ipt-checkbox" name="lock" value="1" {isLock?'checked':''}>
+                                </label>
+
+                                {if(currEl.type=='background')}
+                                <label class="for-checkbox">
+                                    <span>是否继承全局配置</span>
+                                    <input type="checkbox" class="ipt-1 _inputs_el .ipt-checkbox" name="_ipbc" value="1" {currEl._ipbc?'checked':''} {isLock?'readonly':''}>
+                                </label>
+                                {else}
+                                <label class="for-checkbox">
+                                    <span>是否隐藏</span>
+                                    <input type="checkbox" class="ipt-1 _inputs_el .ipt-checkbox" name="hide" value="1" {currEl.hide?'checked':''} {isLock?'readonly':''}>
+                                </label>
+                                {/if}
+                            </div>
+                        </div>
+
+                        {if(currEl.type=='background')}
+                        {js var  bgConf = $__bgConf}
+                        <div class="option-group">
+                            <h3>全局设置</h3>
+                            <div class="content">
+                                <label class="option">
+                                    <span>顶边距离(px)</span>
+                                    <input type="number" name="public-top" class="ipt-1 _public_ipts _inputs_el" value="{bgConf.top||0}" {isLock?'readonly':''}>
+                                </label>
+                                <label class="option">
+                                    <span>左边距离(px)</span>
+                                    <input type="number" name="public-left" class="ipt-1 _public_ipts _inputs_el" value="{bgConf.left||0}" {isLock?'readonly':''}>
+                                </label>
+                                <label class="option">
+                                    <span>宽度(px或%)</span>
+                                    <input type="text" name="public-width" class="ipt-1 _public_ipts _inputs_el" value="{bgConf.width||0}" {isLock?'readonly':''}>
+                                </label>
+                                <label class="option">
+                                    <span>高度(px或%)</span>
+                                    <input type="text" name="public-height" class="ipt-1 _public_ipts _inputs_el" value="{bgConf.height||0}" {isLock?'readonly':''}>
+                                </label>
+                            </div>
+                        </div>
+                        {/if}
+                    </script>
+                    <div class="scroll-wrap">
+                        <div class="msg">修改左侧选中元素对应的配置</div>
+                        <div class="tab-target" id="el_attrs_box"></div>
+                    </div>
+                </div>
+            </aside>
+        </section>
+        <!-- 编辑区域 end -->
+
+        <!-- 底部序列帧们 sta -->
+        <footer class="flex-row">
+            <div class="pane flex-col">
+                <div class="tabs">
+                    <a class="tab on">序列帧</a>
+                    
+
+                    <a class="fl-r btn-preview -playing" href="##play||stop">
+                        <span class="btn-menu btn-play"><i class="glyphicons glyphicons-play"></i> 播放</span>
+                        <span class="btn-menu btn-stop"><i class="glyphicons glyphicons-stop"></i> 停止</span>
+                    </a>
+                    <span class="fl-r global-delay">帧频：<input class="ipt-1 _input" name="fps" type="number" min=".1" max="1000" value="12">帧/秒 &nbsp; </span>
+                    <span class="fl-r set-quality" title="由于GIF图只有256色，所以这里再高也不能输出PNG同等质量的效果哦..&#10;实在想看高质量效果，就分享编辑模式的存档出去吧~">输出GIF质量：
+                        <span>高<input type='range' min='1' max='30' value='10' name='quality' class="_input">低</span>
+                    </span>
+
+                </div>
+
+                <div class="tab-target top-shadow -flex-row">
+                    <script id="foot_frames_tmpl" type="text/tmpl">
+                        {for(var frameData,i=0;frameData=opts[i];i++)}
+                        <div class="frame" style="background-image:url({frameData.els[0].src})">
+                            <!--span class="frm f-delay">延时<input class="ipt-1 _input" name="frame_delay" type="number" min="10" max="5000" value="{frameData.delay||''}">毫秒</span-->
+                            <span class="frm f-move">
+                                <a href="###" class="btn-1 btn-move" data-act="first" title="移动为第一帧"><i class="glyphicons glyphicons-fast-backward"></i></a>
+                                <a href="###" class="btn-1 btn-move" data-act="prev" title="前移一帧"><i class="glyphicons glyphicons-step-backward"></i></a>
+                                <a href="###" class="btn-1 btn-move" data-act="next" title="后移一帧"><i class="glyphicons glyphicons-step-forward"></i></a>
+                                <a href="###" class="btn-1 btn-move" data-act="last" title="移动为最后一帧"><i class="glyphicons glyphicons-fast-forward"></i></a>
+                            </span>
+
+                            <a class="frm del-frame" href="#del_frame"><i class="glyphicons glyphicons-bin"></i> 删除</a>
+                        </div>
+                        {/for}
+                    </script>
+                    <div id="foot_frames_box" class="frames-wrap"></div>
+
+                </div>
+
+            </div>
+        </footer>
+        <!-- 底部序列帧们 end -->
+        
+		<!-- 视频编辑区域 sta -->
+        <div id="video_edit_modal" class="modal hide">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <button type="button" class="close"><span>×</span></button>
+                    <h4 class="modal-title"><i class="glyphicons glyphicons-google-maps g-i-b"></i> 截取视频</h4>
+                </div>
+                <div class="modal-content" id="video_edit_content" style="text-align: center;">
+					<div class="video-modal-content">
+						<video id="video" width="640px" height="320px" controls="true" loop="loop"></video>
+						<canvas id="video_canvas" class="video-canvas"></canvas>
+					</div>
+					<div>
+						<div class="auto_snap">
+							<span>自动截取视频时间间隔：&nbsp;&nbsp;</span>
+							<span id="snap_interval_span">1</span>
+							<span>秒/帧</span>
+							<span><input id="snap_interval" type="range" min="200" max="2000" step="100" value="1000" name="snap_interval" class="_input"></span>
+							<span class="btn-menu btn-play btn-autosnap"><i id="autosnap_icon" class="glyphicons glyphicons-play"></i><span id="autosnap_span">开始截屏</span></span>
+						</div>
+						<div id="video_snap" class="btn-snap">手动截取视频</div>
+					</div>
+					<!--<div id="video_snap_res_con" class="video_snap_res_con">
+					</div>-->
+                </div>
+            </div>
+        </div>
+		<!-- 视频编辑区域 end -->
+        <!-- 帧元素编辑区域 sta -->
+        <div id="frame_edit_modal" class="modal hide">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <button type="button" class="close"><span>×</span></button>
+                    <h4 class="modal-title"><i class="glyphicons glyphicons-google-maps g-i-b"></i> 编辑帧元素</h4>
+                </div>
+                <div class="modal-content">
+                    <div class="edit-tool-con">
+                        <div class="js_tool tool" data-mode="6">剪裁</div>
+                        <div class="js_tool tool" data-mode="7">选择</div>
+                        <div class="js_tool tool paint-tool-switch" data-mode="5">画笔</div>
+                        <div class="paint-tool-con">
+                           <div class="js_tool tool" data-mode="0">铅笔</div>
+                           <div class="js_tool tool" data-mode="1">直线</div>
+                           <div class="js_tool tool" data-mode="2">矩形</div>
+                           <div class="js_tool tool" data-mode="3">圆形</div>
+                           <div class="palette-con clearfix">
+                               <div class="palette cp-default">
+                                   <div class="picker-wrapper">
+                                       <div id="palette_picker"></div>
+                                   </div>
+                                   <div class="slide-wrapper">
+                                       <div id="palette_slide"></div>
+                                   </div>
+                               </div>
+                               <div class="preview"></div>
+                           </div>
+                        </div>
+                        <div class="js_tool tool erase" data-mode="4">橡皮擦</div>
+                        <div class="edit-btn-con">
+                            <div class="btn save">保存</div>
+                        </div>
+                    </div>
+                    <div class="edit-content-wrapper">
+                        <div id="edit_canvas_con" class="edit_canvas_con">
+                            <canvas id="frame_background_canvas" ></canvas>
+                            <canvas id="frame_overlay_canvas" class="transparent"></canvas>
+                            <canvas id="frame_preview_canvas" class="transparent"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>       
+        <!-- 帧元素编辑区域 end -->
+        <!-- 公共元素编辑区域 sta -->
+        <div id="pub_ele_edit_modal" class="modal hide">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <button type="button" class="close"><span>×</span></button>
+                    <h4 class="modal-title"><i class="glyphicons glyphicons-google-maps g-i-b"></i> 公共元件显示区间编辑</h4>
+                </div>
+                <div class="msg" style="margin: 10px 10px -20px;">用来控制公共元件在第几帧到第几帧之间的区间才显示，可以用于字幕控制等。</div>
+                <script id="public_ele_tmpl" type="text/tmpl">
+                {for(var pubEle,i=0;pubEle=opts[i];i++)}
+                    <div class="pub_ele_item clearfix">
+                        <div class="pub_ele_txt">
+                            {pubEle.txt}
+                        </div>
+                        <div class="pub_ele_timer">
+                            <div class="timer_con" style="padding-left:{((pubEle.start-1)/gifEditor.data.getFramesCount()*100).toFixed(2)}%;padding-right:{((gifEditor.data.getFramesCount()-pubEle.end)/gifEditor.data.getFramesCount()*100).toFixed(2)}%;">
+                                <div class="timer">
+                                    <div class="timer_drag_ele drag_start" data-type="start" data-index={i}>
+                                        <div class="timer_start_x">{pubEle.start}</div>
+                                    </div>
+                                    <div class="timer_drag_ele drag_end" data-type="end" data-index={i}>
+                                        <div class="timer_end_x">{pubEle.end}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {/for}
+                </script>
+                <div id="public_ele_box" class="public-ele-wrap"></div>
+                <div class="sub-btn-con">
+                    <a id="js_timer_sub" class="timer_sub">保&nbsp;&nbsp;存</a>
+                </div>
+            </div>
+        </div>    
+        <!-- 公共元素编辑区域 end -->
+        <!-- 导入水滴截图 sta -->
+        <div id="jia_pics_modal" class="modal hide">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <button type="button" class="close"><span>×</span></button>
+                    <h4 class="modal-title"><i class="glyphicons glyphicons-google-maps g-i-b"></i> 水滴直播截图导入</h4>
+                </div>
+                <div class="modal-content">
+          
+                    <form id="form_ipc_search" class="img-search">
+                        <label>SN号或直播名称：<input class="ipt-2" name="kw" type="text" value="36020174749" size="11"></label>
+                        
+                        <span>
+                            时间范围：<label><input class="ipt-2" name="sta_time" type="datetime" value="2015-11-06 17:03:33" size="18"></label><!-- 
+                                  -->-<label><input class="ipt-2" name="end_time" type="datetime" value="2015-11-06 17:04:38" _x="2015-11-06 17:12:03" size="18"></label>
+                        </span>
+                        <button type="submit" class="btn-2 b2-blue"><i class="glyphicons glyphicons-search"></i> 搜索</button>
+                    </form>
+
+                    <div id="ipc_pic_list_outer">
+                        <h3 class="h3-1 clearfix">
+                            截图列表<span class="query-subtitle"></span>：
+                            <span class="fl-r sel-text">
+                                <a href="javascript:$('.img-item input').prop('checked',true);void 0;" class="btn-2">全选</a> 
+                                <a href="javascript:$('.img-item input').each(function(i,el){ el.checked=!el.checked });void 0;" class="btn-2">反选</a> 
+                                隔<input id="_step" class="ipt-1" type="number" min="0" max="1000" value="1" style="width:30px">帧<!-- 
+                                 --><a href="javascript:var _step_v=(parseInt($('#_step').val(),10)||0)+1;$('.img-item input').each(function(i,el){ el.checked=(i%_step_v==0) });void 0;" class="btn-2">选择</a>
+                            </span>
+                        </h3>
+
+                        <script id="pic_items_tmpl" type="text/tmpl">
+                            {js var ipcSN=$sn,ipcName=$name,pics=$pics;}
+                            {for(var picTimeStamp,i=0;picTimeStamp=pics[i];i++)}
+                            <label class="img-item">
+                                <span class="vam"></span>
+                                <input type="checkbox" class="ckbox">
+                                <img src="/gif_img/{ipcSN}_{picTimeStamp}.jpg" data-ipc-name="{ipcName}" data-ipc-sn="{ipcSN}" data-pic-timestamp="{picTimeStamp}">
+                                <span class="tb-bl">{$.formatDate(picTimeStamp,'YYYY-MM-DD hh:mm:ss')}</span>
+                            </label>
+                            {/for}
+                        </script>
+
+                        <script id="pic_query_tips" type="text/tmpl">
+                            <div class="query-tips">{opts||'请先在上面搜索框中输入查询参数，并执行“搜索”操作。'}</div>
+                        </script>
+
+                        <div class="img-list-warp">
+                            <div class="img-list"></div>
+                        </div>
+                    </div>
+
+                    <h3 class="h3-1" style="padding-top:12px;">推荐摄像机<span class="query-subtitle">双击在上面列出最近的100张截图---如果有这么多的话...  所以，想看更多，自己调整时间范围区间吧</span>：</h3>
+
+                    <script id="ipc_items_tmpl" type="text/tmpl">
+                        {js var names=$names, imgs = $imgs;}
+                        {for(var sn in names)}
+                        {js var name = names[sn], pics = imgs[sn], ipcCount = pics.length, staTimeStamp = pics[0], endTimeStamp = pics[ipcCount-1], staTime=$.formatDate(staTimeStamp,'YYYY-MM-DD hh:mm:ss'), endTime = $.formatDate(endTimeStamp,'YYYY-MM-DD hh:mm:ss');}
+                        <div class="ipc-item" title="双击显示最近的100张截图" data-ipc-sn="{sn}" data-ipc-name="{name}" data-count="{ipcCount}" data-sta-time="{ipcCount>100?$.formatDate(pics[ipcCount-100],'YYYY-MM-DD hh:mm:ss'):staTime}" data-end-time="{endTime}">
+                            <div class="img-item">
+                                <span class="vam"></span>
+                                <img src="/gif_img/{sn}_{endTimeStamp}.jpg">
+                            </div>
+                            <div class="ipc-info">
+                                <h4>{name}</h4>
+                                <p>截图：{staTime}</p>
+                                <p>最近：{endTime}</p>
+                                <p>共有截图 {ipcCount} 张</p>
+                            </div>
+                        </div>
+                        {/for}
+                    </script>
+                    <div class="img-list-warp" id="ipcs">
+
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <span class="text-warning">已选择<span class="img-checked-total"></span>张要导入的帧图片。</span>
+                    <a href="#import" id="btn_import_ipc_pics" class="btn-2 b2-blue"><i class="glyphicons glyphicons-disk-import"></i> 确定导入</a>
+                </div>
+            </div>
+        </div>
+        <!-- 导入水滴截图 end -->
+
+        <!-- 导出GIF图 sta -->
+        <div id="export_modal" class="modal hide">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <button type="button" class="close"><span>×</span></button>
+                    <h4 class="modal-title"><i class="glyphicons glyphicons-google-maps g-i-b"></i> GIF导出</h4>
+                </div>
+                <div class="modal-content" id="export_content" style="text-align: center;">
+          
+                    正在执行导出...
+
+
+                </div>
+                <!--div class="modal-footer">
+                    <span class="text-warning">已选择<span class="img-checked-total"></span>张要导入的帧图片。</span>
+                    <a href="#import" id="btn_import_ipc_pics" class="btn-2 b2-blue"><i class="glyphicons glyphicons-disk-import"></i> 确定导入</a>
+                </div-->
+            </div>
+        </div>
+        <!-- 导出GIF图 end -->
+
+        <!-- 多说帮助 sta -->
+        <div id="help_modal" class="modal hide">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <button type="button" class="close"><span>×</span></button>
+                    <h4 class="modal-title"><i class="glyphicons glyphicons-google-maps g-i-b"></i> 留言||帮助</h4>
+                </div>
+                <div class="modal-content">
+          
+                    <!-- 多说评论框 start -->
+                    <div class="ds-thread" data-thread-key="gif_editor" data-title="GIF编辑器" data-url="http://gif.qihu.work" style="-webkit-user-select: initial;user-select: initial;"></div>
+                    <!-- 多说评论框 end -->
+                    <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+                    <script type="text/javascript">
+                    var duoshuoQuery = {short_name:"gifeditor"};
+                    $("#help_modal").on("modal_show",function(){
+                        if(!duoshuoQuery.__initTF){
+                            duoshuoQuery.__initTF=1;
+                            var ds = document.createElement('script');
+                            ds.type = 'text/javascript';ds.async = true;
+                            ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.unstable.js';
+                            ds.charset = 'UTF-8';
+                            document.getElementsByTagName('head')[0].appendChild(ds);
+                        }
+                    });
+                    </script>
+                    <!-- 多说公共JS代码 end -->
+
+                </div>
+            </div>
+        </div>
+        <!-- 多说帮助 end -->
+
+        <!-- 导入本地图片 sta -->
+        <div id="upload_modal" class="modal hide">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <button type="button" class="close"><span>×</span></button>
+                    <h4 class="modal-title"><i class="glyphicons glyphicons-cloud-upload"></i> 从本地上传并导入帧素材图片</h4>
+                </div>
+                <div class="modal-content">
+
+                    <div id="divUploadMsg" class="upload-files-msg" style="display: block;"><p class="text-info">共选择0个文件，文件大小共计0 KB。</p></div>
+                    
+                    <div class="upload-files-wrap">
+                        <div class="fl-l">
+                            <span class="btn-upload">选择多文件导入</span>
+                            <p>(点击选择文件或拖动文件到这里)</p>
+                            <input type="file" multiple="multiple" class="_upload_files" data-upload-type="files">
+                        </div>
+                        <div class="fl-l" style="width:33%;margin-left: 0.2%;">
+                            <span class="btn-upload">选择文件夹导入</span>
+                            <p>(点击选择文件夹或拖动文件夹到这里)</p>
+                            <input type="file" multiple="multiple" class="_upload_files" data-upload-type="folder" webkitdirectory="" directory="">
+                        </div>
+                        <div class="fl-r">
+                            <span class="btn-upload">选择视频导入</span>
+                            <p>(视频文件最大50M)</p>
+                            <input id="_video_upload" type="file" class="_upload_files" accept="video/*;capture=camcorder">
+                        </div>
+                        <div id="uploading" class="uploading hide">正在导入，请稍后...</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- 导入本地图片 end -->
+
+        <!-- 导入导出存档数据 sta -->
+        <div id="share_modal" class="modal hide">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <button type="button" class="close"><span>×</span></button>
+                    <h4 class="modal-title"><i class="glyphicons glyphicons-share-alt"></i> 导入导出存档数据，以自行保存或分享给别人</h4>
+                </div>
+                <div class="modal-content">
+
+                    <h3>
+                        <a class="btn-2 fl-r" href="###" id="btn_data_share_output">
+                            <i class="glyphicons glyphicons-log-out"></i> 
+                            导出<span>(导出当前正编辑的GIF档案数据到下面文本框)</span>
+                        </a>
+                        <a class="btn-2" href="###" id="btn_data_share_input">
+                            <i class="glyphicons glyphicons-log-in"></i> 
+                            导入<span>(导入粘贴到下面文本框中的存档数据)</span>
+                        </a>
+                    </h3>
+                    <textarea id="txt_data_share" class="ipt-1" placeholder="你可以点击“导出”后，在这里看到导出的数据；也可以粘贴要导入的数据过来，然后点击“导入”执行导入操作。"></textarea>
+
+                </div>
+            </div>
+        </div>
+        <!-- 导入导出存档数据 end -->
+        <script src="static/module/flexi/colorpicker.min.js"></script>
+        <script src="static/module/gif/gif.js"></script>
+        <script src="static/module/gif/exploder.js"></script>
+        <script src="static/module/tmpl/tmpl.js"></script>
+        <script src="static/module/h5_upload/files_upload.js"></script>
+        <script src="static/js/gif_editor.js"></script>
+        <script type="text/javascript">/*
+            $('body').contextmenu(function(e){ 
+                if(e.button==2){
+                    e.preventDefault();
+                }
+            })
+        */</script>
+
+        <p style="margin:4px 0px;font-size:12px;display:none"><script src='https://s13.cnzz.com/stat.php?id=41666&amp;web_id=41666&amp;online=1&amp;show=line' type='text/javascript' charset='gb2312'></script></p> 
+
+        <script type="text/javascript">
+  // (function() {
+  //    var s = document.createElement("script");
+  //    s.type = "text/javascript";
+  //    s.async = true;
+  //    s.src = "//felis.fenxi.360.cn/script/bbxv37fditwewmi.js";
+  //    document.getElementsByTagName("head")[0].appendChild(s);+
+  // })();
+</script>
+    </div>
+</body>
+</html>
